@@ -1,40 +1,32 @@
 <?php
 session_start();
-if (isset($_POST) && isset($_POST["login_form"])) {
-    // récupérer les éléments du formulaire
-    $email = stripslashes($_POST['email']);
-    $pass = stripslashes($_POST['password']);
-    $password = md5($prefixSalt.$pass.$suffixSalt);
-    // Si le bouton valider connexion
-    try {
-        // On selectionne l'utilisateur avec les informations de connexion
-        $dbh = new PDO('mysql:host=localhost;dbname=tpWeb', 'test', 'test', array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
-        $sql = $dbh->query("SELECT u.id, u.email, u.nom, u.prenom, u.couleur, u.profilepic FROM USERS u WHERE u.email='".$email."'");
-        $sql = $dbh->query($requete);
-        // si une colonne ou plus, on prend ces données en session et on redirige vers la page suivante
-        if ($sql->fetchColumn() >= 1) {
-            $sql = $dbh->query($requete);
-            $sql->execute();
-            while ($data = $sql->fetch(PDO::FETCH_ASSOC)) {
-                $_SESSION["id"] = $data["id"];
-                $_SESSION["email"] = $data["email"];
-                $_SESSION["password"] = $password;
-                $_SESSION["nom"] = $data["nom"];
-                $_SESSION["prenom"] = $data["prenom"];
-                $_SESSION["tel"] = $data["tel"];
-                $_SESSION["birthdate"] = $data["birthdate"];
-                $_SESSION["couleur"] = "#".$data["couleur"];
-                $_SESSION["profilepic"] = $data["profilepic"];
-            }
-            // ici,  rediriger vers la page main.php
-            header("Location: ../main.php");
-        } else {
-            // ici,  rediriger vers la page main.php
-            header("Location: ../main.php?erreur");
+if(empty($_POST['email']) || empty($_POST['password']))
+{
+    echo "Email ou password incorrect";
+}
+else{
+    $dbh = new PDO('mysql:host=localhost;dbname=pictionnary', 'test', 'test');
+    $email=$_POST['email'];
+    $password=$_POST['password'];
+        $q= "SELECT email, password FROM users WHERE email = '$email' and password = '$password'";
+        try {
+            $r =  $dbh->query($q);
+            $res= $r->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("PDO Error :".$e->getMessage());
         }
-    }
-    catch(Exception $e) {
-        trigger_error($e->getMessage(), E_USER_ERROR);
-    }
+        if (sizeof($res)==0) {
+            header("Location:main.php?badlogin=".urlencode("Pas le bon login ou mot de passe"));
+        }else{
+            $sql = $dbh->query("SELECT u.id, u.email, u.nom, u.prenom, u.couleur, u.profilepic FROM USERS u WHERE u.email='".$email."'");
+                $user=$sql->fetch(PDO::FETCH_ASSOC);
+                $_SESSION['id']=$user['id'];
+                $_SESSION['email']=$user['email'];
+                $_SESSION['nom']=$user['nom'];
+                $_SESSION['prenom']=$user['prenom'];
+                $_SESSION['couleur']=$user['couleur'];
+                $_SESSION['profilepic']=$user['profilepic'];
+            header("Location:main.php");
+        }
 }
 ?>

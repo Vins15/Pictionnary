@@ -9,5 +9,15 @@
    </head>  
    <body>  
       <h1> Application Pictionnary</h1>
+	  <div>
+			<ul id="lien">
+				<li><a href="main.php"><b>►</b> Accueil</a></li>
+				<li><a href="inscription.php">inscription</a></li>
+			</ul>
+	  </div>
+	  <form>
+  
+	</form> 
+	  
    </body>  
 </html>  

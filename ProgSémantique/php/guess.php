@@ -1,10 +1,26 @@
 <?php  
 session_start();  
-if(!isset($_SESSION['id'])) {  
+if(!isset($_SESSION['sid'])) 
+{  
     header("Location: main.php");  
-} else {  
+} 
+else 
+{  
  // ici, récupérer la liste des commandes dans la table DRAWINGS avec l'identifiant $_GET['id']  
  // l'enregistrer dans la variable $commands  
+	$dbh = new PDO('mysql:host=localhost;dbname=pictionnary', 'test', 'test');
+	$sql = $dbh->prepare("SELECT commandes FROM drawings WHERE u_id= :uid AND id= :id");
+	$sql->bindValue(":uid", $_SESSION['sid']);
+	$sql->bindValue(":id", $_GET['id']);
+	$sql->execute();
+	if($sql->rowCount() < 1) 
+	{
+		header("Location: main.php");
+	} 
+	else 
+	{
+		$commands = $sql->fetch(PDO::FETCH_COLUMN);
+	}
 }  
   
 ?>  
@@ -22,31 +38,57 @@ if(!isset($_SESSION['id'])) {
         // le tableau de commandes de dessin à envoyer au serveur lors de la validation du dessin  
         var drawingCommands = <?php echo $commands;?>;  
   
-        window.onload = function() {  
+        window.onload = function() 
+		{  
             var canvas = document.getElementById('myCanvas');  
             canvas.width = 400;  
             canvas.height= 400;  
             var context = canvas.getContext('2d');  
   
-            var start = function(c) {  
-                // complétez  
+            var start = function(c) 
+			{  
+                // complétez
+				size =  c.size;
+				color = c.color;
+				y0 = c.y;
+				x0 = c.x;
+				context.beginPath();
+				context.fillStyle = color;
+				context.arc(x0, y0, size / 2, 0, 2 * Math.PI);
+				context.fill();
+				context.closePath();
             }  
   
-            var draw = function(c) {  
+            var draw = function(c) 
+			{  
                 // complétez  
+				y0 = c.y;
+				x0 = c.x;
+				context.beginPath();
+				context.fillStyle = color;
+				context.arc(x0, y0, size /2, 0, 2 * Math.PI);
+				context.fill();
+				context.closePath();
+				
             }  
   
-            var clear = function() {  
-                // complétez  
+            var clear = function() 
+			{  
+                // complétez 
+				context.clearRect(0, 0, canvas.width, canvas.height);
             }  
   
             // étudiez ce bout de code  
             var i = 0;  
-            var iterate = function() {  
+            var iterate = function() 
+			{  
                 if(i>=drawingCommands.length)  
+				{
                     return;  
+				}
                 var c = drawingCommands[i];  
-                switch(c.command) {  
+                switch(c.command) 
+				{  
                     case "start":  
                         start(c);  
                         break;  
@@ -72,4 +114,4 @@ if(!isset($_SESSION['id'])) {
 <body>  
 <canvas id="myCanvas"></canvas>  
 </body>  
-</html>  
+</html>
